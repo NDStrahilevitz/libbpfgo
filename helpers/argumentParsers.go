@@ -409,8 +409,8 @@ const (
 
 func (c CapabilityFlagArgument) Value() uint64 { return uint64(c) }
 
-func (c CapabilityFlagArgument) String() string {
-	var capabilities = map[CapabilityFlagArgument]string{
+var (
+	capFlagStringMap = map[CapabilityFlagArgument]string{
 		CAP_CHOWN:            "CAP_CHOWN",
 		CAP_DAC_OVERRIDE:     "CAP_DAC_OVERRIDE",
 		CAP_DAC_READ_SEARCH:  "CAP_DAC_READ_SEARCH",
@@ -450,10 +450,12 @@ func (c CapabilityFlagArgument) String() string {
 		CAP_BLOCK_SUSPEND:    "CAP_BLOCK_SUSPEND",
 		CAP_AUDIT_READ:       "CAP_AUDIT_READ",
 	}
+)
 
+func (c CapabilityFlagArgument) String() string {
 	var res string
 
-	if capName, ok := capabilities[c]; ok {
+	if capName, ok := capFlagStringMap[c]; ok {
 		res = capName
 	} else {
 		res = strconv.Itoa(int(c))
@@ -883,8 +885,8 @@ var (
 
 func (p PtraceRequestArgument) Value() uint64 { return uint64(p) }
 
-func (p PtraceRequestArgument) String() string {
-	var ptraceRequest = map[PtraceRequestArgument]string{
+var (
+	ptraceRequestStringMap = map[PtraceRequestArgument]string{
 		PTRACE_TRACEME:              "PTRACE_TRACEME",
 		PTRACE_PEEKTEXT:             "PTRACE_PEEKTEXT",
 		PTRACE_PEEKDATA:             "PTRACE_PEEKDATA",
@@ -920,9 +922,11 @@ func (p PtraceRequestArgument) String() string {
 		PTRACE_SECCOMP_GET_METADATA: "PTRACE_SECCOMP_GET_METADATA",
 		PTRACE_GET_SYSCALL_INFO:     "PTRACE_GET_SYSCALL_INFO",
 	}
+)
 
+func (p PtraceRequestArgument) String() string {
 	var res string
-	if reqName, ok := ptraceRequest[p]; ok {
+	if reqName, ok := ptraceRequestStringMap[p]; ok {
 		res = reqName
 	} else {
 		res = strconv.Itoa(int(p))
@@ -931,8 +935,8 @@ func (p PtraceRequestArgument) String() string {
 	return res
 }
 
-func ParsePtraceRequestArgument(rawValue uint64) (PtraceRequestArgument, error) {
-	var ptraceRequest = map[uint64]PtraceRequestArgument{
+var (
+	ptraceRequestArgMap = map[uint64]PtraceRequestArgument{
 		PTRACE_TRACEME.Value():              PTRACE_TRACEME,
 		PTRACE_PEEKTEXT.Value():             PTRACE_PEEKTEXT,
 		PTRACE_PEEKDATA.Value():             PTRACE_PEEKDATA,
@@ -968,8 +972,11 @@ func ParsePtraceRequestArgument(rawValue uint64) (PtraceRequestArgument, error) 
 		PTRACE_SECCOMP_GET_METADATA.Value(): PTRACE_SECCOMP_GET_METADATA,
 		PTRACE_GET_SYSCALL_INFO.Value():     PTRACE_GET_SYSCALL_INFO,
 	}
+)
 
-	if reqName, ok := ptraceRequest[rawValue]; ok {
+func ParsePtraceRequestArgument(rawValue uint64) (PtraceRequestArgument, error) {
+
+	if reqName, ok := ptraceRequestArgMap[rawValue]; ok {
 		return reqName, nil
 	}
 	return 0, fmt.Errorf("not a valid ptrace request value: %d", rawValue)
