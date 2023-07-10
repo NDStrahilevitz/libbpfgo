@@ -193,8 +193,11 @@ func (k *lazyKernelSymbols) GetSymbolByName(owner string, name string) (*KernelS
 	key := symbolKey(owner, name)
 	symbol, exist := k.symbolMap[key]
 	if exist {
+		fmt.Printf("[LazyKsyms] returning cached result (owner: %s name: %s)\n", owner, name)
 		return symbol, nil
 	}
+	fmt.Printf("[LazyKsyms] returning non-cached result (owner: %s name: %s)\n", owner, name)
+	fmt.Printf("[LazyKsyms] searching in %d lines (owner: %s name: %s)\n", len(k.fileContent), owner, name)
 	for _, line := range k.fileContent {
 		line := strings.Fields(line)
 		// if the line is less than 3 words, we can't parse it (one or more fields missing)
@@ -299,8 +302,12 @@ func (k *lazyKernelSymbols) Refresh() error {
 	if err != nil {
 		return fmt.Errorf("could not open /proc/kallsyms: %w", err)
 	}
+	if len(file) == 0 {
+		return fmt.Errorf("empty /proc/kallsyms file")
+	}
 	fileLines := strings.Split(string(file), "\n")
 	k.fileContent = fileLines
+	fmt.Printf("[LazyKsyms] refreshed  with %d lines\n", len(k.fileContent))
 	k.symbolMap = make(map[string]*KernelSymbol)
 	k.symbolAddrMap = make(map[uint64]*KernelSymbol)
 	k.textSegStart = math.MaxUint64
