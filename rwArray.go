@@ -1,6 +1,7 @@
 package libbpfgo
 
 import (
+	"fmt"
 	"sync"
 )
 
@@ -61,6 +62,7 @@ func (a *rwArray) remove(index uint) {
 
 func (a *rwArray) get(index uint) interface{} {
 	if int(index) >= len(a.slots) {
+		fmt.Printf("get: index %d is out of bounds\n", index)
 		return nil
 	}
 

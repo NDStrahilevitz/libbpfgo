@@ -4,6 +4,7 @@ import (
 	"C"
 	"unsafe"
 )
+import "fmt"
 
 // revive:disable
 
@@ -19,8 +20,15 @@ func perfCallback(ctx unsafe.Pointer, cpu C.int, data unsafe.Pointer, size C.int
 //export perfLostCallback
 func perfLostCallback(ctx unsafe.Pointer, cpu C.int, cnt C.ulonglong) {
 	pb := eventChannels.get(uint(uintptr(ctx))).(*PerfBuffer)
+	if pb == nil {
+		fmt.Println("pb is nil")
+		return
+	}
 	if pb.lostChan != nil {
+		fmt.Printf("Received lost event: %d\n", cnt)
 		pb.lostChan <- uint64(cnt)
+	} else {
+		fmt.Println("pb.lostChan is nil")
 	}
 }
 
