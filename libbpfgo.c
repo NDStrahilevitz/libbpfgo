@@ -89,6 +89,9 @@ struct perf_buffer *cgo_init_perf_buf(int map_fd, int page_cnt, uintptr_t ctx)
         return NULL;
     }
 
+    printf("printf: Perf buffer initialized with %d cpus\n", pb->cpu_cnt);
+    fprintf(stderr, "Perf buffer initialized with %d cpus\n", pb->cpu_cnt);
+
     return pb;
 }
 
