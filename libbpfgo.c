@@ -5,6 +5,21 @@ extern void perfCallback(void *ctx, int cpu, void *data, __u32 size);
 extern void perfLostCallback(void *ctx, int cpu, __u64 cnt);
 extern int ringbufferCallback(void *ctx, void *data, size_t size);
 
+struct perf_buffer {
+    perf_buffer_event_fn event_cb;
+    perf_buffer_sample_fn sample_cb;
+    perf_buffer_lost_fn lost_cb;
+    void *ctx; /* passed into callbacks */
+
+    size_t page_size;
+    size_t mmap_size;
+    struct perf_cpu_buf **cpu_bufs;
+    struct epoll_event *events;
+    int cpu_cnt;  /* number of allocated CPU buffers */
+    int epoll_fd; /* perf event FD */
+    int map_fd;   /* BPF_MAP_TYPE_PERF_EVENT_ARRAY BPF map FD */
+};
+
 int libbpf_print_fn(enum libbpf_print_level level, // libbpf print level
                     const char *format,            // format used for the msg
                     va_list args)                  // args used by format
