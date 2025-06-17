@@ -2,9 +2,27 @@ package libbpfgo
 
 import (
 	"C"
+	"sync/atomic"
+	"time"
 	"unsafe"
 )
 import "fmt"
+
+var (
+	waitingEvents atomic.Int64
+	passedEvents  atomic.Int64
+)
+
+func init() {
+	ticker := time.NewTicker(10 * time.Second)
+	go func() {
+		for range ticker.C {
+			fmt.Printf("libbpfgo: waitingEvents: %d\n", waitingEvents.Load())
+			fmt.Printf("libbpfgo: passedEvents: %d\n", passedEvents.Load())
+			passedEvents.Store(0)
+		}
+	}()
+}
 
 // revive:disable
 
@@ -14,7 +32,10 @@ import "fmt"
 //export perfCallback
 func perfCallback(ctx unsafe.Pointer, cpu C.int, data unsafe.Pointer, size C.int) {
 	pb := eventChannels.get(uint(uintptr(ctx))).(*PerfBuffer)
+	waitingEvents.Add(1)
 	pb.eventsChan <- C.GoBytes(data, size)
+	passedEvents.Add(1)
+	waitingEvents.Add(-1)
 }
 
 //export perfLostCallback
