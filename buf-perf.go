@@ -8,7 +8,6 @@ import "C"
 
 import (
 	"fmt"
-	"os"
 	"sync"
 	"syscall"
 )
@@ -103,13 +102,9 @@ func (pb *PerfBuffer) poll(timeout int) error {
 			if retC < 0 {
 				errno := syscall.Errno(-retC)
 				if errno == syscall.EINTR {
-					fmt.Println("libbpfgo: EINTR")
-					fmt.Fprintln(os.Stderr, "libbpfgo: EINTR")
 					continue
 				}
 
-				fmt.Println("libbpfgo: error polling perf buffer: %w", errno)
-				fmt.Fprintln(os.Stderr, "libbpfgo: error polling perf buffer: %w", errno)
 				return fmt.Errorf("error polling perf buffer: %w", errno)
 			}
 		}
